@@ -55,8 +55,8 @@
             {
                 id: "a1",
                 name: "محمد",
-                username: "MOHAMMED",
-                password: "Demo1234",
+                username: "demo",
+                password: "1234",
                 preferredCode: "MOHAMED",
                 rate: 30,
                 email: "mohammed@example.com",
@@ -347,7 +347,7 @@
             const password = String(formData.get("password") || "");
 
             // Public demo admin account. Never use this for a live website.
-            if (username === "ADMIN" && password === "Admin1234") {
+            if (username === "admin" && password === "1234") {
                 sessionStorage.setItem(
                     SESSION_KEY,
                     JSON.stringify({ role: "admin" })
