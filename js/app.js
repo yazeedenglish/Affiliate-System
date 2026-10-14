@@ -346,8 +346,8 @@
                 .toUpperCase();
             const password = String(formData.get("password") || "");
 
-            // Public demo admin account. Never use this for a live website.
-            if (username === "admin" && password === "1234") {
+            // Public demo admin account. Never use this for a live website
+            if (username === "admin" && password === "admin") {
                 sessionStorage.setItem(
                     SESSION_KEY,
                     JSON.stringify({ role: "admin" })
