@@ -160,7 +160,7 @@
     }
 
     function goToLogin() {
-        window.location.href = "login.html";
+        window.location.href = "/login";
     }
 
     function getProduct(productId) {
@@ -274,19 +274,19 @@
             const methods = formData.getAll("methods").map((item) => String(item));
 
             if (!/^[A-Z0-9]{3,7}$/.test(preferredCode)) {
-                showMessage($("#message"), "الكود يجب أن يتكون من 3 إلى 7 أحرف أو أرقام إنجليزية فقط.");
+                showMessage($("#message"), "الكود يجب أن يتكون من 3 إلى 7 أحرف أو أرقام إنجليزية فقط");
                 return;
             }
             if (platformsSelected.length === 0) {
-                showMessage($("#message"), "اختر منصة تسويق واحدة على الأقل.");
+                showMessage($("#message"), "اختر منصة تسويق واحدة على الأقل");
                 return;
             }
             if (methods.length === 0) {
-                showMessage($("#message"), "اختر طريقة تسويق واحدة على الأقل.");
+                showMessage($("#message"), "اختر طريقة تسويق واحدة على الأقل");
                 return;
             }
             if (!formData.get("agreement")) {
-                showMessage($("#message"), "يجب الموافقة على التعهد قبل إرسال الطلب.");
+                showMessage($("#message"), "يجب الموافقة على التعهد قبل إرسال الطلب");
                 return;
             }
 
@@ -307,7 +307,7 @@
             ].some((person) => String(person.preferredCode || person.promoCode || "").toUpperCase() === preferredCode);
 
             if (codeAlreadyUsed) {
-                showMessage($("#message"), "هذا الكود مستخدم أو محجوز بالفعل. اختر كودًا آخر.");
+                showMessage($("#message"), "هذا الكود مستخدم أو محجوز بالفعل. اختر كودًا آخر");
                 return;
             }
 
@@ -326,7 +326,7 @@
             saveData();
             registrationForm.reset();
             renderPlatformFields();
-            showMessage($("#message"), "تم استلام طلبك في النسخة التجريبية، وستراجعه الإدارة يدويًا.");
+            showMessage($("#message"), "تم استلام طلبك في النسخة التجريبية، وستراجعه الإدارة يدويًا");
         });
     }
 
@@ -353,7 +353,7 @@
                     JSON.stringify({ role: "admin" })
                 );
 
-                window.location.href = "admin.html";
+                window.location.href = "/admin";
                 return;
             }
 
@@ -366,7 +366,7 @@
             if (!affiliate) {
                 showMessage(
                     $("#message"),
-                    "رمز الشريك أو كلمة المرور غير صحيح."
+                    "رمز الشريك أو كلمة المرور غير صحيح"
                 );
                 return;
             }
@@ -379,7 +379,7 @@
                 })
             );
 
-            window.location.href = "dashboard.html";
+            window.location.href = "/dashboard";
         });
     }
 
@@ -472,7 +472,7 @@
                     const availableBalance = getAvailableBalance(affiliate.id);
 
                     if (availableBalance < MINIMUM_WITHDRAWAL) {
-                        alert("الحد الأدنى للسحب 50 ريالًا.");
+                        alert("الحد الأدنى للسحب 50 ريال");
                         return;
                     }
 
@@ -481,7 +481,7 @@
                     });
 
                     if (hasPendingWithdrawal) {
-                        alert("لديك طلب سحب قيد المعالجة.");
+                        alert("لديك طلب سحب قيد المعالجة");
                         return;
                     }
 
@@ -779,7 +779,7 @@
             }
 
             if (!orderNumber || !orderDate || !Number.isFinite(originalPrice) || originalPrice <= 0) {
-                alert("تحقق من رقم الطلب والتاريخ والسعر الأصلي.");
+                alert("تحقق من رقم الطلب والتاريخ والسعر الأصلي");
                 return;
             }
 
@@ -788,7 +788,7 @@
             });
 
             if (duplicateSale) {
-                alert("هذا المنتج من رقم الطلب مسجل مسبقًا.");
+                alert("هذا المنتج من رقم الطلب مسجل مسبقًا");
                 return;
             }
 
@@ -918,7 +918,7 @@
                 });
 
                 if (usernameAlreadyUsed) {
-                    alert("هذا الرمز مستخدم بالفعل.");
+                    alert("هذا الرمز مستخدم بالفعل");
                     return;
                 }
 
@@ -927,7 +927,7 @@
                 if (!codeInput) return;
                 const preferredCode = codeInput.trim().toUpperCase();
                 if (!/^[A-Z0-9]{3,7}$/.test(preferredCode)) {
-                    alert("يجب أن يتكون الكود التسويقي من 3 إلى 7 أحرف أو أرقام إنجليزية فقط.");
+                    alert("يجب أن يتكون الكود التسويقي من 3 إلى 7 أحرف أو أرقام إنجليزية فقط");
                     return;
                 }
                 const codeAlreadyUsed = db.affiliates.some((item) => String(item.preferredCode || item.promoCode || "").toUpperCase() === preferredCode && item.id !== application.id);
@@ -941,7 +941,7 @@
                 );
 
                 if (!password || password.length < 8) {
-                    alert("يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل.");
+                    alert("يجب أن تتكون كلمة المرور من 8 أحرف أو أرقام على الأقل");
                     return;
                 }
 
@@ -949,7 +949,7 @@
                 const rate = Number(rateInput);
 
                 if (rateInput === null || !Number.isFinite(rate) || rate < 0 || rate > 100) {
-                    alert("أدخل نسبة عمولة من 0 إلى 100.");
+                    alert("أدخل نسبة عمولة من 0 إلى 100");
                     return;
                 }
 
@@ -969,7 +969,7 @@
                 renderAdminLists();
 
                 alert(
-                    "تم إنشاء الحساب التجريبي. لا تستخدم كلمة مرور حقيقية في هذه النسخة."
+                    "تم إنشاء الحساب التجريبي. لا تستخدم كلمة مرور حقيقية في هذه النسخة"
                 );
                 return;
             }
@@ -998,7 +998,7 @@
                 if (codeInput === null) return;
                 const newCode = codeInput.trim().toUpperCase();
                 if (!/^[A-Z0-9]{3,7}$/.test(newCode)) {
-                    alert("يجب أن يتكون الكود من 3 إلى 7 أحرف أو أرقام إنجليزية فقط.");
+                    alert("يجب أن يتكون الكود من 3 إلى 7 أحرف أو أرقام إنجليزية فقط");
                     return;
                 }
                 const codeAlreadyUsed = db.affiliates.some((item) => item.id !== affiliate.id && String(item.preferredCode || item.promoCode || "").toUpperCase() === newCode);
