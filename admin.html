@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F5F6F2">
+    <title>لوحة الإدارة | Yazeed English</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    
+<header class="top">
+    <a class="brand" href="/">
+        <img
+            src="https://file.yazeedenglish.com/logo.png"
+            alt="Yazeed English"
+            class="brand-logo"
+        >
+        <span>
+            Yazeed English
+         <small>Affiliate Management</small>
+        </span>
+    </a>
+
+    <div class="header-actions">
+        <button
+            class="theme-toggle"
+            id="themeToggle"
+            type="button"
+            aria-label="تفعيل الوضع الداكن"
+            title="تغيير المظهر"
+        >
+            <span id="themeIcon" aria-hidden="true">🌙</span>
+        </button>
+
+        <button class="btn secondary" type="button" data-logout>
+            تسجيل الخروج
+        </button>
+    </div>
+</header>
+
+    <main class="wide">
+        <p class="eyebrow">الإدارة</p>
+        <h1>إدارة برنامج الشركاء</h1>
+        <p class="muted">إدارة الطلبات والمبيعات والعمولات وطلبات السحب من مكان واحد</p>
+
+        <nav class="tabs" aria-label="أقسام لوحة الإدارة">
+            <button class="tab active" type="button" data-tab="applications">
+                طلبات الانضمام
+            </button>
+            <button class="tab" type="button" data-tab="sales">
+                إضافة بيع
+            </button>
+            <button class="tab" type="button" data-tab="withdrawals">
+                طلبات السحب
+            </button>
+            <button class="tab" type="button" data-tab="affiliates">
+                الشركاء
+            </button>
+        </nav>
+
+        <section class="card tab-panel" id="applications">
+            <h2>طلبات الانضمام</h2>
+            <p class="muted">راجع بيانات المتقدم ثم وافق على الطلب أو ارفضه، أو أضف شريكًا مباشرة.</p>
+            <div class="panel-toolbar">
+                <button class="btn" id="addAffiliate" type="button">+ إضافة شريك يدويًا</button>
+            </div>
+            <div id="applicationsList" class="stack"></div>
+        </section>
+
+        <section class="card tab-panel hidden" id="sales">
+            <h2>إضافة عملية بيع</h2>
+            <p class="muted">
+                أدخل بيانات الطلب من سلة. تُحسب العمولة من السعر الأصلي،
+                وتبقى مخفية عن الشريك لمدة 14 يومًا من وقت إدخال البيع.
+            </p>
+
+            <form id="saleForm" class="form-grid">
+                <label>
+                    الشريك
+                    <select name="affiliate" id="affiliateSelect" required></select>
+                </label>
+
+                <label>
+                    المنتج
+                    <select name="product" id="productSelect" required>
+                        <option value="step">دورة STEP</option>
+                        <option value="english">برنامج الإنجليزي</option>
+                        <option value="trab6">دورة ترابط 6</option>
+                        <option value="writing">دورة الكتابة</option>
+                    </select>
+                </label>
+
+                <label>
+                    رقم طلب سلة
+                    <input name="order" type="text" required maxlength="100">
+                </label>
+
+                <label>
+                    تاريخ الطلب
+                    <input name="date" type="date" required>
+                </label>
+
+                <label>
+                    السعر الأصلي (ر.س)
+                    <input
+                        name="price"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        value="149"
+                        required
+                    >
+                </label>
+
+                <p class="preview" id="preview" aria-live="polite">
+                    العمولة التقديرية: 29.80 ر.س
+                </p>
+
+                <button class="btn" type="submit">إضافة البيع</button>
+            </form>
+
+            <div class="section-divider"></div>
+            <h3>سجل المبيعات</h3>
+            <div id="salesList" class="stack"></div>
+        </section>
+
+        <section class="card tab-panel hidden" id="withdrawals">
+            <h2>طلبات السحب</h2>
+            <p class="muted">وافق على الطلب بعد المراجعة، ثم سجّل التحويل بعد إتمامه يدويًا.</p>
+            <div id="withdrawalsList" class="stack"></div>
+        </section>
+
+        <section class="card tab-panel hidden" id="affiliates">
+            <h2>الشركاء</h2>
+            <p class="muted">راجع الشركاء المسجلين وعدّل نسبة العمولة عند الحاجة.</p>
+            <div id="affiliatesList" class="stack"></div>
+        </section>
+
+        <p class="warning">
+            نسخة تجريبية فقط. البيانات محفوظة في المتصفح وليست قاعدة بيانات آمنة أو مشتركة.
+        </p>
+    </main>
+
+    <script src="js/app.js"></script>
+    <footer class="site-footer">
+        <nav class="footer-links" aria-label="روابط أساسية">
+            <a href="https://wa.me/966552087385" target="_blank" rel="noopener noreferrer">
+    دعم الشركاء
+</a>
+            <a href="/faq/">الأسئلة الشائعة</a>
+            <a href="/policy/">سياسة البرنامج</a>
+        </nav>
+
+        <p class="footer-copyright">
+            جميع الحقوق محفوظة © Yazeed English
+        </p>
+    </footer>
+</body>
+</html>

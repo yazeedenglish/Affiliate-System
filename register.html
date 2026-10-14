@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F5F6F2">
+    <title>طلب الانضمام | Yazeed English</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <button
+    class="theme-toggle"
+    id="themeToggle"
+    type="button"
+    aria-label="تفعيل الوضع الداكن"
+    title="تغيير المظهر"
+>
+    <span id="themeIcon" aria-hidden="true">🌙</span>
+</button>
+   <header class="top">
+    <a class="brand" href="/">
+        <img
+            src="https://file.yazeedenglish.com/logo.png"
+            alt="Yazeed English"
+            class="brand-logo"
+        >
+        <span>
+            Yazeed English
+            <small>برنامج الشركاء</small>
+        </span>
+    </a>
+    </header>
+
+    <main class="narrow">
+        <section class="card">
+            <p class="eyebrow">انضم إلى البرنامج</p>
+            <h1>طلب الانضمام</h1>
+            <p class="muted">أكمل البيانات التالية، وسنقوم بمراجعة طلبك في أقرب وقت</p>
+
+            <form id="registerForm">
+                <label>
+                    الاسم
+                    <input name="name" type="text" autocomplete="name" maxlength="100" required>
+                </label>
+
+                <label>
+                    ما هو الكود الذي تفضّله؟
+                    <input name="preferredCode" type="text" minlength="3" maxlength="7" pattern="[A-Za-z0-9]{3,7}" autocomplete="off" placeholder="مثال: YAZEED7" required>
+                    <small class="field-hint">من 3 إلى 7 أحرف أو أرقام إنجليزية، دون مسافات</small>
+                </label>
+
+                <fieldset class="choice-group">
+                    <legend>منصة التسويق الرئيسية <span class="required-mark">*</span></legend>
+                    <p class="muted tiny">اختر منصة واحدة على الأقل، ثم أدخل رابط حسابك أو اسم المستخدم لكل منصة اخترتها</p>
+                    <div class="check-grid">
+                        <label class="check-option"><input type="checkbox" name="platforms" value="سناب شات" data-platform="snapchat"> Snapchat</label>
+                        <label class="check-option"><input type="checkbox" name="platforms" value="تيك توك" data-platform="tiktok"> TikTok</label>
+                        <label class="check-option"><input type="checkbox" name="platforms" value="إنستغرام" data-platform="instagram"> Instagram</label>
+                        <label class="check-option"><input type="checkbox" name="platforms" value="X (تويتر)" data-platform="x"> X (Twitter)</label>
+                        <label class="check-option"><input type="checkbox" name="platforms" value="يوتيوب" data-platform="youtube"> YouTube</label>
+                        <label class="check-option"><input type="checkbox" name="platforms" value="تيليجرام" data-platform="telegram"> Telegram</label>
+                        <label class="check-option"><input type="checkbox" name="platforms" value="أخرى" data-platform="other"> أخرى</label>
+                    </div>
+                    <div id="platformDetails" class="platform-details"></div>
+                </fieldset>
+
+                <fieldset class="choice-group">
+                    <legend>كيف تخطط لتسويق منتجاتنا؟ <span class="required-mark">*</span></legend>
+                    <div class="check-list">
+                        <label class="check-option"><input type="checkbox" name="methods" value="محتوى إعلاني ومقاطع فيديو"> محتوى إعلاني ومقاطع فيديو</label>
+                        <label class="check-option"><input type="checkbox" name="methods" value="توصيات ومراجعات شخصية"> توصيات ومراجعات شخصية</label>
+                        <label class="check-option"><input type="checkbox" name="methods" value="مجموعات ومجتمعات تعليمية"> مجموعات ومجتمعات تعليمية</label>
+                        <label class="check-option"><input type="checkbox" name="methods" value="إعلانات مدفوعة"> إعلانات مدفوعة</label>
+                    </div>
+                </fieldset>
+
+                <label>
+                    نبذة عنك (أخبرنا عن جمهورك أو خبرتك في التسويق)
+                    <textarea name="about" rows="4" maxlength="1000" placeholder="اكتب نبذة مختصرة"></textarea>
+                </label>
+
+                <label class="agreement-option">
+    <input type="checkbox" name="agreement" required>
+
+    <span>
+        أقر بالموافقة على
+        <a href="/policy" target="_blank" rel="noopener noreferrer">
+            سياسة برنامج الشركاء
+        </a>
+    </span>
+</label>
+
+                <button class="btn" type="submit">إرسال الطلب</button>
+            </form>
+            <p id="message" class="message" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+    
+<footer class="site-footer">
+        <nav class="footer-links" aria-label="روابط أساسية">
+            <a href="https://wa.me/966552087385" target="_blank" rel="noopener noreferrer">
+    دعم الشركاء
+</a>
+            <a href="/faq/">الأسئلة الشائعة</a>
+            <a href="/policy/">سياسة البرنامج</a>
+        </nav>
+
+        <p class="footer-copyright">
+            جميع الحقوق محفوظة © Yazeed English
+        </p>
+    </footer>
+
+</body>
+</html>

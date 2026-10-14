@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F5F6F2">
+    <title>لوحة الشريك | Yazeed English</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+    <a class="brand" href="/">
+        <img
+            src="https://file.yazeedenglish.com/logo.png"
+            alt="Yazeed English"
+            class="brand-logo"
+        >
+        <span>
+            Yazeed English
+            <small>برنامج الشركاء</small>
+        </span>
+    </a>
+
+    <div class="header-actions">
+        <button
+            class="theme-toggle"
+            id="themeToggle"
+            type="button"
+            aria-label="تفعيل الوضع الداكن"
+            title="تغيير المظهر"
+        >
+            <span id="themeIcon" aria-hidden="true">🌙</span>
+        </button>
+
+        <button class="btn secondary" type="button" data-logout>
+            تسجيل الخروج
+        </button>
+    </div>
+</header>
+
+    <main class="wide">
+        <p class="eyebrow">لوحة الشريك</p>
+        <h1>أهلًا، <span id="name">محمد</span></h1>
+        <p class="muted">الله يبارك في رزقك وسعيك</p>
+
+        <section class="promo-code-card" aria-label="كودك التسويقي">
+            <div>
+                <p class="promo-code-label">كودك التسويقي</p>
+                <p class="promo-code-description">شارك هذا الكود مع جمهورك عند شراء منتجاتنا.</p>
+            </div>
+            <div class="promo-code-actions">
+                <strong id="promoCode">—</strong>
+                <button class="btn secondary" id="copyPromoCode" type="button">نسخ الكود</button>
+            </div>
+        </section>
+
+        <section class="stats" aria-label="ملخص الحساب">
+            <article class="card">
+                <p>إجمالي المبيعات</p>
+                <strong id="sales">0</strong>
+            </article>
+
+            <article class="card">
+                <p>إجمالي العمولات المحوّلة</p>
+                <strong id="commission">0 ر.س</strong>
+            </article>
+
+            <article class="card dark">
+                <p>الرصيد المتاح للسحب</p>
+                <strong id="balance">0 ر.س</strong>
+            </article>
+
+            <article class="card">
+                <p>طلبات السحب</p>
+                <strong id="withdrawals">0</strong>
+            </article>
+        </section>
+
+        <section class="card withdrawal-panel">
+            <h2>طلبات السحب</h2>
+            <div id="withdrawalList" class="muted">
+                لا توجد طلبات حتى الآن.
+            </div>
+
+            <button class="btn" id="requestWithdrawal" type="button">
+                سحب الرصيد الى الحساب البنكي
+            </button>
+            <p class="muted tiny">الحد الادنى لطلب السخب 50 ريال</p>
+        </section>
+
+        <p class="warning">
+            نسخة تجريبية فقط: لا تستخدمها لحسابات أو أموال حقيقية.
+            ستُربط بـ Supabase لاحقًا.
+        </p>
+    </main>
+
+    <script src="js/app.js"></script>
+    <!-- Footer -->
+    <footer class="site-footer">
+        <nav class="footer-links" aria-label="روابط أساسية">
+            <a href="https://wa.me/966552087385" target="_blank" rel="noopener noreferrer">
+    دعم الشركاء
+</a>
+            <a href="/faq/">الأسئلة الشائعة</a>
+            <a href="/policy/">سياسة البرنامج</a>
+        </nav>
+
+        <p class="footer-copyright">
+            جميع الحقوق محفوظة © Yazeed English
+        </p>
+    </footer>
+</body>
+</html>
