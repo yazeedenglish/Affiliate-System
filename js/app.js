@@ -421,7 +421,7 @@ function renderAffiliateOrders(affiliateId) {
     if (totalOrders === 0) {
         ordersList.innerHTML = `
             <div class="orders-empty">
-                <span class="orders-empty-icon">📦</span>
+                <span class="orders-empty-icon"></span>
                 <strong>لا توجد طلبات حتى الآن</strong>
                 <p>ستظهر طلباتك هنا عند تسجيل المبيعات.</p>
             </div>
@@ -676,7 +676,7 @@ function renderAffiliateOrders(affiliateId) {
                         `;
                     }).join("");
                 } else {
-                    withdrawalList.textContent = "لا توجد طلبات حتى الآن";
+                    withdrawalList.textContent = "لا توجد حوالات حتى الآن";
                 }
 
                 $("#requestWithdrawal").addEventListener("click", () => {
