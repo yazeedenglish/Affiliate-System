@@ -101,6 +101,97 @@ const MINIMUM_WITHDRAWAL = 50;
 
     let db = loadData();
 
+     // --------------------------------------------------------
+    // SUPABASE DATA HELPERS
+    // --------------------------------------------------------
+
+    function mapAffiliateFromSupabase(profile) {
+        if (!profile) return null;
+
+        return {
+            id: profile.id,
+            name: profile.name,
+            username: profile.username,
+            email: profile.email,
+            role: profile.role,
+            status: profile.status,
+            rate: Number(profile.rate) || 0,
+            preferredCode: profile.preferred_code || ""
+        };
+    }
+
+    function mapSaleFromSupabase(sale) {
+        return {
+            id: sale.id,
+            affiliateId: sale.affiliate_id,
+            productId: sale.product_id,
+            orderNumber: sale.order_number,
+            orderDate: sale.order_date,
+            price: Number(sale.price) || 0,
+            rate: Number(sale.commission_rate) || 0,
+            enteredAt: sale.entered_at,
+            status: sale.status
+        };
+    }
+
+    function mapWithdrawalFromSupabase(withdrawal) {
+        return {
+            id: withdrawal.id,
+            affiliateId: withdrawal.affiliate_id,
+            amount: Number(withdrawal.amount) || 0,
+            status: withdrawal.status,
+            createdAt: withdrawal.created_at
+        };
+    }
+
+    async function loadAffiliateDataFromSupabase(affiliateId) {
+        if (!window.supabaseClient || !affiliateId) {
+            throw new Error("SUPABASE_NOT_READY");
+        }
+
+        const client = window.supabaseClient;
+
+        const [
+            profileResult,
+            salesResult,
+            withdrawalsResult
+        ] = await Promise.all([
+            client
+                .from("profiles")
+                .select("id, name, username, email, role, status, preferred_code, rate")
+                .eq("id", affiliateId)
+                .eq("role", "affiliate")
+                .eq("status", "active")
+                .maybeSingle(),
+
+            client
+                .from("sales")
+                .select("id, affiliate_id, product_id, order_number, order_date, price, commission_rate, entered_at, status")
+                .eq("affiliate_id", affiliateId)
+                .order("entered_at", { ascending: false }),
+
+            client
+                .from("withdrawals")
+                .select("id, affiliate_id, amount, status, created_at")
+                .eq("affiliate_id", affiliateId)
+                .order("created_at", { ascending: false })
+        ]);
+
+        if (profileResult.error) throw profileResult.error;
+        if (salesResult.error) throw salesResult.error;
+        if (withdrawalsResult.error) throw withdrawalsResult.error;
+
+        if (!profileResult.data) {
+            throw new Error("AFFILIATE_PROFILE_NOT_FOUND");
+        }
+
+        return {
+            affiliate: mapAffiliateFromSupabase(profileResult.data),
+            sales: salesResult.data.map(mapSaleFromSupabase),
+            withdrawals: withdrawalsResult.data.map(mapWithdrawalFromSupabase)
+        };
+    }
+
     function saveData() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
@@ -330,6 +421,7 @@ const MINIMUM_WITHDRAWAL = 50;
         });
     }
 
+    
     // --------------------------------------------------------
     // 5. LOGIN FORM
     // --------------------------------------------------------
@@ -337,51 +429,105 @@ const MINIMUM_WITHDRAWAL = 50;
     const loginForm = $("#loginForm");
 
     if (loginForm) {
-        loginForm.addEventListener("submit", (event) => {
+        loginForm.addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            const formData = new FormData(loginForm);
-            const username = String(formData.get("username") || "")
-                .trim()
-                .toUpperCase();
-            const password = String(formData.get("password") || "");
-
-            // Public demo admin account. Never use this for a live website
-            if (username === "ADMIN" && password === "Admin1234") {
-                sessionStorage.setItem(
-                    SESSION_KEY,
-                    JSON.stringify({ role: "admin" })
-                );
-
-                window.location.href = "/admin";
-                return;
-            }
-
-            const affiliate = db.affiliates.find((item) => {
-                return item.username.toUpperCase() === username
-                    && item.password === password
-                    && item.status === "active";
-            });
-
-            if (!affiliate) {
-                showMessage(
-                    $("#message"),
-                    "رمز الشريك أو كلمة المرور غير صحيح"
-                );
-                return;
-            }
-
-            sessionStorage.setItem(
-                SESSION_KEY,
-                JSON.stringify({
-                    role: "affiliate",
-                    id: affiliate.id
-                })
+            const message = $("#message");
+            const submitButton = loginForm.querySelector(
+                'button[type="submit"]'
             );
 
-            window.location.href = "/dashboard";
+            const formData = new FormData(loginForm);
+            const username = String(
+                formData.get("username") || ""
+            ).trim().toUpperCase();
+
+            const password = String(
+                formData.get("password") || ""
+            );
+
+            if (!username || !password) {
+                showMessage(
+                    message,
+                    "أدخل اسم المستخدم وكلمة المرور"
+                );
+                return;
+            }
+
+            if (!window.supabaseClient) {
+                showMessage(
+                    message,
+                    "تعذر الاتصال بالخدمة حاليًا"
+                );
+                return;
+            }
+
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            try {
+                const { data, error } =
+                    await window.supabaseClient.functions.invoke(
+                        "login-with-username",
+                        {
+                            body: {
+                                username,
+                                password
+                            }
+                        }
+                    );
+
+                if (error || !data?.session || !data?.user) {
+                    throw new Error("LOGIN_FAILED");
+                }
+
+                const { error: sessionError } =
+                    await window.supabaseClient.auth.setSession({
+                        access_token: data.session.access_token,
+                        refresh_token: data.session.refresh_token
+                    });
+
+                if (sessionError) {
+                    throw sessionError;
+                }
+
+                sessionStorage.setItem(
+                    SESSION_KEY,
+                    JSON.stringify({
+                        role: data.user.role,
+                        id: data.user.id
+                    })
+                );
+
+                if (data.user.role === "admin") {
+                    window.location.href = "/admin";
+                } else if (data.user.role === "affiliate") {
+                    window.location.href = "/dashboard";
+                } else {
+                    await window.supabaseClient.auth.signOut();
+                    sessionStorage.removeItem(SESSION_KEY);
+
+                    showMessage(
+                        message,
+                        "هذا الحساب لا يملك صلاحية الدخول"
+                    );
+                }
+            } catch (error) {
+                console.error("Login failed:", error);
+
+                showMessage(
+                    message,
+                    "اسم المستخدم أو كلمة المرور غير صحيحة، أو تعذر الاتصال بالخدمة"
+                );
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
+            }
         });
     }
+
 
     // --------------------------------------------------------
     // 6. AFFILIATE DASHBOARD
@@ -598,126 +744,162 @@ function renderAffiliateOrders(affiliateId) {
         });
     });
 }
+    
+    // --------------------------------------------------------
+    // AFFILIATE DASHBOARD — SUPABASE
+    // --------------------------------------------------------
 
+    (async () => {
+        const withdrawalList = $("#withdrawalList");
 
-    const withdrawalList = $("#withdrawalList");
+        if (!withdrawalList) return;
 
-    if (withdrawalList) {
         const session = getSession();
 
         if (!session || session.role !== "affiliate") {
             goToLogin();
-        } else {
-            const affiliate = getAffiliate(session.id);
+            return;
+        }
 
-            if (!affiliate) {
-                goToLogin();
-            } else {
-                $("#name").textContent = affiliate.name;
-                const promoCodeElement = $("#promoCode");
-                const copyPromoCodeButton = $("#copyPromoCode");
-                const promoCode = affiliate.preferredCode || affiliate.promoCode || "—";
-                if (promoCodeElement) promoCodeElement.textContent = promoCode;
-                if (copyPromoCodeButton) {
-                    copyPromoCodeButton.addEventListener("click", async () => {
-                        if (!promoCode || promoCode === "—") {
-                            alert("لم يتم تعيين كود تسويقي لهذا الحساب بعد");
-                            return;
-                        }
-                        try {
-                            await navigator.clipboard.writeText(promoCode);
-                            copyPromoCodeButton.textContent = "تم النسخ ✓";
-                            setTimeout(() => { copyPromoCodeButton.textContent = "نسخ الكود"; }, 1800);
-                        } catch (error) {
-                            const temporaryInput = document.createElement("textarea");
-                            temporaryInput.value = promoCode;
-                            temporaryInput.style.position = "fixed";
-                            temporaryInput.style.opacity = "0";
-                            document.body.appendChild(temporaryInput);
-                            temporaryInput.select();
-                            document.execCommand("copy");
-                            temporaryInput.remove();
-                            copyPromoCodeButton.textContent = "تم النسخ ✓";
-                            setTimeout(() => { copyPromoCodeButton.textContent = "نسخ الكود"; }, 1800);
-                        }
-                    });
-                }
+        const nameElement = $("#name");
+        const promoCodeElement = $("#promoCode");
+        const copyPromoCodeButton = $("#copyPromoCode");
+        const requestWithdrawalButton = $("#requestWithdrawal");
 
-                const releasedSales = getReleasedSales(affiliate.id);
-                renderAffiliateOrders(affiliate.id);
-                const affiliateWithdrawals = db.withdrawals.filter(
-                    (withdrawal) => withdrawal.affiliateId === affiliate.id
-                );
+        try {
+            // Load the affiliate and their records from Supabase.
+            const data = await loadAffiliateDataFromSupabase(session.id);
 
-                const totalCommission = releasedSales.reduce(
-                    (total, sale) => total + getCommission(sale),
-                    0
-                );
+            const affiliate = data.affiliate;
 
-                $("#sales").textContent = releasedSales.length;
-                $("#commission").textContent = money(totalCommission);
-                $("#balance").textContent = money(
-                    getAvailableBalance(affiliate.id)
-                );
-                $("#withdrawals").textContent = affiliateWithdrawals.length;
+            // Keep existing dashboard calculations and rendering.
+            // These assignments are in memory only; they do not save
+            // Supabase data to localStorage.
+            db.affiliates = [affiliate];
+            db.sales = data.sales;
+            db.withdrawals = data.withdrawals;
 
-                if (affiliateWithdrawals.length > 0) {
-                    withdrawalList.innerHTML = affiliateWithdrawals.map((withdrawal) => {
-                        return `
-                            <div class="item">
-                                <div>
-                                    <strong>${money(withdrawal.amount)}</strong>
-                                    <small>
-                                        ${formatDate(withdrawal.createdAt)}
-                                        · ${getWithdrawalStatusLabel(withdrawal.status)}
-                                    </small>
-                                </div>
-                            </div>
-                        `;
-                    }).join("");
-                } else {
-                    withdrawalList.textContent = "لا توجد حوالات حتى الآن";
-                }
+            if (nameElement) {
+                nameElement.textContent = affiliate.name;
+            }
 
-                $("#requestWithdrawal").addEventListener("click", () => {
-                    const availableBalance = getAvailableBalance(affiliate.id);
+            const promoCode =
+                affiliate.preferredCode || "—";
 
-                    if (availableBalance < MINIMUM_WITHDRAWAL) {
-                        alert("الحد الأدنى للسحب 50 ريال");
+            if (promoCodeElement) {
+                promoCodeElement.textContent = promoCode;
+            }
+
+            if (copyPromoCodeButton) {
+                copyPromoCodeButton.addEventListener("click", async () => {
+                    if (promoCode === "—") {
+                        alert("لم يتم تعيين كود تسويقي لهذا الحساب بعد");
                         return;
                     }
 
-                    const hasPendingWithdrawal = affiliateWithdrawals.some((withdrawal) => {
-                        return ["requested", "approved"].includes(withdrawal.status);
-                    });
+                    try {
+                        await navigator.clipboard.writeText(promoCode);
+                        copyPromoCodeButton.textContent = "تم النسخ ✓";
 
-                    if (hasPendingWithdrawal) {
-                        alert("لديك طلب سحب قيد المعالجة");
-                        return;
+                        setTimeout(() => {
+                            copyPromoCodeButton.textContent = "نسخ الكود";
+                        }, 1800);
+                    } catch (error) {
+                        const temporaryInput =
+                            document.createElement("textarea");
+
+                        temporaryInput.value = promoCode;
+                        temporaryInput.style.position = "fixed";
+                        temporaryInput.style.opacity = "0";
+
+                        document.body.appendChild(temporaryInput);
+                        temporaryInput.select();
+                        document.execCommand("copy");
+                        temporaryInput.remove();
+
+                        copyPromoCodeButton.textContent = "تم النسخ ✓";
+
+                        setTimeout(() => {
+                            copyPromoCodeButton.textContent = "نسخ الكود";
+                        }, 1800);
                     }
-
-                    const confirmed = confirm(
-                        `هل تريد طلب سحب كامل الرصيد المتاح: ${money(availableBalance)}؟`
-                    );
-
-                    if (!confirmed) {
-                        return;
-                    }
-
-                    db.withdrawals.unshift({
-                        id: `withdrawal-${Date.now()}`,
-                        affiliateId: affiliate.id,
-                        amount: availableBalance,
-                        status: "requested",
-                        createdAt: new Date().toISOString()
-                    });
-
-                    saveData();
-                    window.location.reload();
                 });
             }
+
+            // Calculate released sales and commissions.
+            const releasedSales = getReleasedSales(affiliate.id);
+
+            renderAffiliateOrders(affiliate.id);
+
+            const affiliateWithdrawals = db.withdrawals.filter(
+                (withdrawal) => withdrawal.affiliateId === affiliate.id
+            );
+
+            const totalCommission = releasedSales.reduce(
+                (total, sale) => total + getCommission(sale),
+                0
+            );
+
+            const salesElement = $("#sales");
+            const commissionElement = $("#commission");
+            const balanceElement = $("#balance");
+            const withdrawalsElement = $("#withdrawals");
+
+            if (salesElement) {
+                salesElement.textContent = releasedSales.length;
+            }
+
+            if (commissionElement) {
+                commissionElement.textContent = money(totalCommission);
+            }
+
+            if (balanceElement) {
+                balanceElement.textContent = money(
+                    getAvailableBalance(affiliate.id)
+                );
+            }
+
+            if (withdrawalsElement) {
+                withdrawalsElement.textContent = affiliateWithdrawals.length;
+            }
+
+            // Render withdrawal history.
+            if (affiliateWithdrawals.length > 0) {
+                withdrawalList.innerHTML = affiliateWithdrawals.map((withdrawal) => {
+                    return `
+                        <div class="item">
+                            <div>
+                                <strong>${money(withdrawal.amount)}</strong>
+                                <small>
+                                    ${formatDate(withdrawal.createdAt)}
+                                    · ${getWithdrawalStatusLabel(withdrawal.status)}
+                                </small>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            } else {
+                withdrawalList.textContent = "لا توجد حوالات حتى الآن";
+            }
+
+            // Do not create real withdrawal requests until the operation
+            // is securely implemented on the server.
+            if (requestWithdrawalButton) {
+                requestWithdrawalButton.addEventListener("click", () => {
+                    alert(
+                        "سيتم تفعيل طلبات السحب بعد إكمال الربط الآمن بقاعدة البيانات."
+                    );
+                });
+            }
+
+        } catch (error) {
+            console.error("Failed to load affiliate dashboard:", error);
+
+            withdrawalList.textContent =
+                "تعذر تحميل بيانات الحساب. تحقق من الاتصال وحاول مرة أخرى.";
         }
-    }
+    })();
+
 
     // --------------------------------------------------------
     // 7. ADMIN DASHBOARD
