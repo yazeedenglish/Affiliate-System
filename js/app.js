@@ -21,9 +21,9 @@
     // --------------------------------------------------------
 
     const STORAGE_KEY = "ye_affiliate_demo_v1";
-    const SESSION_KEY = "ye_affiliate_demo_session";
-    const WAITING_PERIOD_DAYS = 0;
-    const MINIMUM_WITHDRAWAL = 50;
+const SESSION_KEY = "ye_affiliate_demo_session";
+const WAITING_PERIOD_DAYS = 14;
+const MINIMUM_WITHDRAWAL = 50;
 
     // Edit this list when you add or rename a product.
     const PRODUCTS = [
@@ -39,7 +39,7 @@
         },
         {
             id: "trab6",
-            name: "دورة ترابط 6",
+            name: "ترابط الكلمات",
             price: 19
         },
         {
@@ -106,7 +106,7 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
         } catch (error) {
             console.error("Could not save demo data:", error);
-            alert("تعذر حفظ البيانات في هذا المتصفح.");
+            alert("تعذر حفظ البيانات في هذا المتصفح");
         }
     }
 
@@ -347,7 +347,7 @@
             const password = String(formData.get("password") || "");
 
             // Public demo admin account. Never use this for a live website
-            if (username === "admin" && password === "admin") {
+            if (username === "ADMIN" && password === "Admin1234") {
                 sessionStorage.setItem(
                     SESSION_KEY,
                     JSON.stringify({ role: "admin" })
@@ -390,6 +390,216 @@
     // This avoids confusing the dashboard sales statistic with the
     // admin page's section whose ID is also "sales".
 
+function renderAffiliateOrders(affiliateId) {
+    const ordersList = $("#ordersList");
+
+    if (!ordersList) return;
+
+    const pageSize = 10;
+
+    const orders = db.sales
+        .filter((sale) => sale.affiliateId === affiliateId)
+        .sort((a, b) => {
+            return new Date(b.enteredAt || b.orderDate || 0)
+                - new Date(a.enteredAt || a.orderDate || 0);
+        });
+
+    const totalOrders = orders.length;
+    const totalPages = Math.ceil(totalOrders / pageSize);
+
+    let currentPage = Number(ordersList.dataset.page || 1);
+
+    if (!Number.isFinite(currentPage)) currentPage = 1;
+
+    currentPage = Math.max(
+        1,
+        Math.min(currentPage, Math.max(totalPages, 1))
+    );
+
+    ordersList.dataset.page = String(currentPage);
+
+    if (totalOrders === 0) {
+        ordersList.innerHTML = `
+            <div class="orders-empty">
+                <span class="orders-empty-icon">📦</span>
+                <strong>لا توجد طلبات حتى الآن</strong>
+                <p>ستظهر طلباتك هنا عند تسجيل المبيعات.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const visibleOrders = orders.slice(
+        startIndex,
+        startIndex + pageSize
+    );
+
+    const ordersHTML = visibleOrders.map((sale) => {
+        const product = getProduct(sale.productId);
+        const productName = product?.name || sale.productId || "منتج";
+        const commission = getCommission(sale);
+        const addedDate = sale.enteredAt || sale.orderDate;
+        const refunded = sale.status === "refunded";
+        const released = !refunded && isSaleReleased(sale);
+
+        let statusText = "";
+        let statusClass = "";
+        let amountHTML = `<span class="orders-pending-amount">—</span>`;
+
+        if (refunded) {
+            statusText = "مسترجع";
+            statusClass = "is-refunded";
+
+
+        } else if (!released) {
+            statusText = "قيد الانتظار";
+            statusClass = "is-pending";
+            
+        } else {
+            statusText = "مكتمل";
+            statusClass = "is-available";
+
+            amountHTML = `
+                <strong class="orders-amount is-positive">
+                    ${money(commission)}
+                </strong>
+            `;
+        }
+
+        return `
+            <div class="orders-row">
+                <div class="orders-product">
+                    <strong>${escapeHTML(productName)}</strong>
+                    <small>
+                        تاريخ الطلب:
+                        ${escapeHTML(formatDate(addedDate))}
+                    </small>
+                </div>
+
+                <div class="orders-status">
+                    <span class="orders-status-badge ${statusClass}">
+                        ${statusText}
+                    </span>
+                </div>
+
+                <div class="orders-commission">
+                    ${amountHTML}
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    let paginationHTML = "";
+
+    if (totalPages > 1) {
+        const pageNumbers = [];
+
+        for (let page = 1; page <= totalPages; page++) {
+            if (
+                page === 1 ||
+                page === totalPages ||
+                Math.abs(page - currentPage) <= 1
+            ) {
+                pageNumbers.push(page);
+            }
+        }
+
+        const pageButtons = [];
+        let previousPage = 0;
+
+        pageNumbers.forEach((page) => {
+            if (previousPage && page - previousPage > 1) {
+                pageButtons.push(`
+                    <span class="orders-page-dots">…</span>
+                `);
+            }
+
+            pageButtons.push(`
+                <button
+                    type="button"
+                    class="orders-page-btn ${page === currentPage ? "is-active" : ""}"
+                    data-page="${page}"
+                    ${page === currentPage ? 'aria-current="page"' : ""}
+                    aria-label="الصفحة ${page}"
+                >
+                    ${page}
+                </button>
+            `);
+
+            previousPage = page;
+        });
+
+        paginationHTML = `
+            <div class="orders-pagination">
+                <button
+                    type="button"
+                    class="orders-nav-btn"
+                    data-page="${currentPage - 1}"
+                    ${currentPage === 1 ? "disabled" : ""}
+                >
+                    السابق
+                </button>
+
+                <div class="orders-page-numbers">
+                    ${pageButtons.join("")}
+                </div>
+
+                <button
+                    type="button"
+                    class="orders-nav-btn"
+                    data-page="${currentPage + 1}"
+                    ${currentPage === totalPages ? "disabled" : ""}
+                >
+                    التالي
+                </button>
+            </div>
+        `;
+    }
+
+    ordersList.innerHTML = `
+        <div class="orders-table">
+            <div class="orders-table-header">
+                <span>المنتج</span>
+                <span>حالة الطلب</span>
+                <span>العمولة</span>
+            </div>
+
+            <div class="orders-table-body">
+                ${ordersHTML}
+            </div>
+        </div>
+
+        <div class="orders-footer">
+            <span class="orders-count">
+                عرض ${startIndex + 1}–${Math.min(startIndex + pageSize, totalOrders)}
+                من أصل ${totalOrders} طلب
+            </span>
+
+            ${paginationHTML}
+        </div>
+    `;
+
+    ordersList.querySelectorAll("[data-page]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const targetPage = Number(button.dataset.page);
+
+            if (
+                !Number.isInteger(targetPage) ||
+                targetPage < 1 ||
+                targetPage > totalPages ||
+                targetPage === currentPage
+            ) {
+                return;
+            }
+
+            ordersList.dataset.page = String(targetPage);
+            renderAffiliateOrders(affiliateId);
+        });
+    });
+}
+
+
     const withdrawalList = $("#withdrawalList");
 
     if (withdrawalList) {
@@ -411,7 +621,7 @@
                 if (copyPromoCodeButton) {
                     copyPromoCodeButton.addEventListener("click", async () => {
                         if (!promoCode || promoCode === "—") {
-                            alert("لم يتم تعيين كود تسويقي لهذا الحساب بعد.");
+                            alert("لم يتم تعيين كود تسويقي لهذا الحساب بعد");
                             return;
                         }
                         try {
@@ -434,6 +644,7 @@
                 }
 
                 const releasedSales = getReleasedSales(affiliate.id);
+                renderAffiliateOrders(affiliate.id);
                 const affiliateWithdrawals = db.withdrawals.filter(
                     (withdrawal) => withdrawal.affiliateId === affiliate.id
                 );
@@ -465,7 +676,7 @@
                         `;
                     }).join("");
                 } else {
-                    withdrawalList.textContent = "لا توجد طلبات حتى الآن.";
+                    withdrawalList.textContent = "لا توجد طلبات حتى الآن";
                 }
 
                 $("#requestWithdrawal").addEventListener("click", () => {

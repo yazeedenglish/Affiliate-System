@@ -1161,3 +1161,272 @@ form > .btn {
         gap: 6px;
     }
 }
+
+/* مسافة بين بوكس الطلبات وبوكس سجل الحوالات */
+.wide > .withdrawal-panel + .withdrawal-panel {
+    margin-top: 16px;
+}
+
+
+/* ===== Affiliate Orders ===== */
+
+.orders-table {
+    width: 100%;
+}
+
+.orders-table-header,
+.orders-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(100px, 0.8fr) minmax(100px, 0.7fr);
+    align-items: center;
+    gap: 16px;
+}
+
+.orders-table-header {
+    padding: 13px 16px;
+    color: var(--ink-soft);
+    background: var(--paper);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.orders-table-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.orders-row {
+    padding: 17px 16px;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.2s ease;
+}
+
+.orders-row:last-child {
+    border-bottom: none;
+}
+
+.orders-row:hover {
+    background: var(--paper);
+}
+
+.orders-product,
+.orders-status,
+.orders-commission {
+    min-width: 0;
+}
+
+.orders-product {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.orders-product strong {
+    color: var(--ink);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.orders-product small,
+.orders-commission small {
+    color: var(--ink-soft);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.orders-commission {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.orders-amount {
+    font-size: 14px;
+    direction: rtl;
+    unicode-bidi: plaintext;
+}
+
+.orders-amount.is-positive {
+    color: #16a34a;
+}
+
+.orders-amount.is-negative {
+    color: #dc2626;
+}
+
+.orders-pending-amount {
+    color: var(--ink-soft);
+}
+
+.orders-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.orders-status-badge.is-available {
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.orders-status-badge.is-pending {
+    color: #a16207;
+    background: #fef3c7;
+}
+
+.orders-status-badge.is-refunded {
+    color: #b91c1c;
+    background: #fee2e2;
+}
+
+.orders-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 17px;
+    border-top: 1px solid var(--line);
+}
+
+.orders-count {
+    color: var(--ink-soft);
+    font-size: 12px;
+}
+
+.orders-pagination,
+.orders-page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.orders-nav-btn,
+.orders-page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease,
+                border-color 0.2s ease;
+}
+
+.orders-nav-btn:hover:not(:disabled),
+.orders-page-btn:hover:not(.is-active) {
+    border-color: var(--course-button);
+    color: var(--course-button);
+}
+
+.orders-page-btn.is-active {
+    background: var(--course-button);
+    border-color: var(--course-button);
+    color: #fff;
+    font-weight: 700;
+}
+
+.orders-nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.orders-page-dots {
+    color: var(--ink-soft);
+    padding: 0 2px;
+}
+
+.orders-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 35px 16px;
+    text-align: center;
+}
+
+.orders-empty-icon {
+    font-size: 30px;
+}
+
+.orders-empty strong {
+    color: var(--ink);
+    font-size: 14px;
+}
+
+.orders-empty p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 12px;
+}
+
+@media (max-width: 600px) {
+    .orders-table-header {
+        display: none;
+    }
+
+    .orders-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        padding: 16px 8px;
+    }
+
+    .orders-product {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .orders-status {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    .orders-commission {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 10px;
+        border-top: 1px dashed var(--line);
+    }
+
+    .orders-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .orders-count {
+        text-align: center;
+    }
+
+    .orders-pagination {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .orders-page-numbers {
+        gap: 4px;
+    }
+
+    .orders-nav-btn,
+    .orders-page-btn {
+        min-width: 32px;
+        height: 34px;
+        padding: 0 8px;
+    }
+}
